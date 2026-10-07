@@ -1,0 +1,26 @@
+// ============================================================================
+// Samsung-TV (virtuell) – orientiert am Samsung-TV-Binding
+//   Thing-Typ: samsungtv:tv   Channels:
+//     power       -> Switch
+//     volume      -> Dimmer
+//     mute        -> Switch
+//     channel     -> Number
+//     keyCode     -> String (z. B. KEY_CHUP, KEY_CHDOWN, KEY_VOLUP)
+//     sourceName  -> String
+// ============================================================================
+
+Group iMultimedia_Samsung_TV "Samsung TV" <screen> (gMultimedia) ["Television"]
+Switch iMultimedia_Samsung_TV_Power "TV [%s]" <screen>
+    (iMultimedia_Samsung_TV) ["Switch", "Power"]
+    // { channel="samsungtv:tv:livingroom:power" }
+Dimmer iMultimedia_Samsung_TV_Lautstaerke "TV-Lautstärke [%d %%]" <soundvolume>
+    (iMultimedia_Samsung_TV) ["Control", "SoundVolume"]
+    // { channel="samsungtv:tv:livingroom:volume" }
+Switch iMultimedia_Samsung_TV_Stumm "TV stumm [%s]" <soundvolume_mute>
+    (iMultimedia_Samsung_TV) ["Switch", "SoundVolume"]
+Number iMultimedia_Samsung_TV_Kanal "Programm [%d]" <screen>
+    (iMultimedia_Samsung_TV) ["Control", "Channel"]
+String iMultimedia_Samsung_TV_Taste "Taste [%s]" <screen>
+    (iMultimedia_Samsung_TV) ["Control"]
+String iMultimedia_Samsung_TV_Quelle "Quelle [%s]" <screen>
+    (iMultimedia_Samsung_TV) ["Control"]

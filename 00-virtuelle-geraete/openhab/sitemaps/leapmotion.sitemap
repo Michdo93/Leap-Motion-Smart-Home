@@ -1,0 +1,58 @@
+// Test-Sitemap: zeigt alle virtuellen Geräte und die Leap-Motion-Items.
+// Aufruf: http://<openhab>:8080/basicui/app?sitemap=leapmotion
+// Frames für Items, die erst in späteren Kapiteln angelegt werden, bleiben bis dahin leer.
+
+sitemap leapmotion label="Leap Motion im Smart Home" {
+
+    Frame label="Leap Motion (MQTT, Kapitel 18–20)" {
+        Switch  item=Leap_Multimedia_Hand
+        Text    item=Leap_Multimedia_Online
+        Selection item=Leap_Multimedia_Modus
+        Text    item=Leap_Multimedia_PalmX
+        Text    item=Leap_Multimedia_PalmY
+        Text    item=Leap_Multimedia_PalmZ
+        Text    item=Leap_Multimedia_Hoehe
+        Text    item=Leap_Multimedia_Finger
+        Text    item=Leap_Multimedia_Zone_Rollladen
+        Text    item=Leap_Multimedia_Zone_Jalousie
+        Text    item=Leap_Multimedia_Zone_Licht
+        Text    item=Leap_Multimedia_LetzteGeste
+    }
+
+    Frame label="Rollläden (Somfy)" {
+        Slider item=iMultimedia_Somfy_Rollladen_Steuerung_Prozent
+        Slider item=iKonferenz_Somfy_Rollladen2_Steuerung_Prozent
+        Slider item=iKonferenz_Somfy_Rollladen1_Steuerung_Prozent
+        Slider item=iSmartHome_Somfy_Rollladen_Steuerung_Prozent
+    }
+
+    Frame label="Jalousien (HomeMatic)" {
+        Slider item=iKueche_Jalousie_Hinten_Steuerung_Prozent
+        Slider item=iBad_Jalousie_Hinten_Steuerung_Prozent
+        Slider item=iKueche_Jalousie_Vorne_Steuerung_Prozent
+        Slider item=iBad_Jalousie_Vorne_Steuerung_Prozent
+    }
+
+    Frame label="Licht (Hue)" {
+        Colorpicker item=iKueche_Hue_Lampen_Farbe
+        Colorpicker item=iBad_Hue_Lampen_Farbe
+        Colorpicker item=iIoT_Hue_Lampen_Farbe
+        Colorpicker item=iSmartHome_Hue_Lampen_Farbe
+        Colorpicker item=iMultimedia_Hue_Lampen_Farbe
+    }
+
+    Frame label="Audio (Sonos / Webradio)" {
+        Default item=iMultimedia_Sonos_Lautsprecher_Steuerung
+        Slider  item=iMultimedia_Sonos_Lautsprecher_Lautstaerke
+        Text    item=Leap_Multimedia_Webradio_Sender
+        Group   item=gWebradio
+    }
+
+    Frame label="Samsung TV" {
+        Switch item=iMultimedia_Samsung_TV_Power
+        Slider item=iMultimedia_Samsung_TV_Lautstaerke
+        Switch item=iMultimedia_Samsung_TV_Stumm
+        Setpoint item=iMultimedia_Samsung_TV_Kanal minValue=1 maxValue=999 step=1
+        Text   item=iMultimedia_Samsung_TV_Taste
+    }
+}

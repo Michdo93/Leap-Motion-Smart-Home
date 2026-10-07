@@ -1,0 +1,34 @@
+// ============================================================================
+// Jalousien (virtuell) – orientiert am HomeMatic-Binding (z. B. HmIP-BBL)
+//   Channel 4#LEVEL   -> Rollershutter (Behanghöhe, 0 % offen ... 100 % zu)
+//   Channel 4#LEVEL_2 -> Dimmer        (Lamellenstellung)
+// Layout der 2x2-Matrix (leap_jalousie_oh.py):
+//   [Küche hinten] [Bad hinten]
+//   [Küche vorne ] [Bad vorne ]
+// ============================================================================
+
+Group iKueche_Jalousie_Hinten "Jalousie Küche hinten" <blinds> (gKueche) ["Blinds"]
+Rollershutter iKueche_Jalousie_Hinten_Steuerung_Prozent "Jalousie Küche hinten [%d %%]" <blinds>
+    (iKueche_Jalousie_Hinten, gJalousien) ["Control", "Opening"]
+    // { channel="homematic:HmIP-BBL:ccu:000000000001:4#LEVEL" }
+Dimmer iKueche_Jalousie_Hinten_Lamelle_Prozent "Lamellen Küche hinten [%d %%]" <blinds>
+    (iKueche_Jalousie_Hinten) ["Control", "Tilt"]
+    // { channel="homematic:HmIP-BBL:ccu:000000000001:4#LEVEL_2" }
+
+Group iKueche_Jalousie_Vorne "Jalousie Küche vorne" <blinds> (gKueche) ["Blinds"]
+Rollershutter iKueche_Jalousie_Vorne_Steuerung_Prozent "Jalousie Küche vorne [%d %%]" <blinds>
+    (iKueche_Jalousie_Vorne, gJalousien) ["Control", "Opening"]
+Dimmer iKueche_Jalousie_Vorne_Lamelle_Prozent "Lamellen Küche vorne [%d %%]" <blinds>
+    (iKueche_Jalousie_Vorne) ["Control", "Tilt"]
+
+Group iBad_Jalousie_Hinten "Jalousie Bad hinten" <blinds> (gBad) ["Blinds"]
+Rollershutter iBad_Jalousie_Hinten_Steuerung_Prozent "Jalousie Bad hinten [%d %%]" <blinds>
+    (iBad_Jalousie_Hinten, gJalousien) ["Control", "Opening"]
+Dimmer iBad_Jalousie_Hinten_Lamelle_Prozent "Lamellen Bad hinten [%d %%]" <blinds>
+    (iBad_Jalousie_Hinten) ["Control", "Tilt"]
+
+Group iBad_Jalousie_Vorne "Jalousie Bad vorne" <blinds> (gBad) ["Blinds"]
+Rollershutter iBad_Jalousie_Vorne_Steuerung_Prozent "Jalousie Bad vorne [%d %%]" <blinds>
+    (iBad_Jalousie_Vorne, gJalousien) ["Control", "Opening"]
+Dimmer iBad_Jalousie_Vorne_Lamelle_Prozent "Lamellen Bad vorne [%d %%]" <blinds>
+    (iBad_Jalousie_Vorne) ["Control", "Tilt"]

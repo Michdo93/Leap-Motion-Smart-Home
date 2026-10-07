@@ -1,0 +1,161 @@
+// ============================================================================
+// Kapitel 20 – Ansatz A: Gerätesteuerung über openHAB-Regeln (Rules DSL)
+//
+// Eingänge (MQTT-Items aus Kapitel 18):
+//   Leap_Multimedia_Hand, _Hoehe, _Tiefe, _Grab, _Zone_Rollladen/_Jalousie/_Licht
+//   Channel "mqtt:topic:mosquitto:leap_multimedia:gesture"  (Gesten-Ereignisse)
+// Ausgänge: virtuelle Geräte aus 00-virtuelle-geraete
+//
+// Nur EINE Sprachvariante (DSL, JS oder Python) gleichzeitig aktivieren!
+// ============================================================================
+
+import java.util.Map
+import java.util.List
+
+val List<String> MODI = newArrayList("ROLLLADEN", "JALOUSIE", "LICHT", "WEBRADIO")
+
+val Map<String, String> ROLLLADEN = newHashMap(
+    "Z1" -> "iMultimedia_Somfy_Rollladen_Steuerung_Prozent",
+    "Z2" -> "iKonferenz_Somfy_Rollladen2_Steuerung_Prozent",
+    "Z3" -> "iKonferenz_Somfy_Rollladen1_Steuerung_Prozent",
+    "Z4" -> "iSmartHome_Somfy_Rollladen_Steuerung_Prozent"
+)
+
+val Map<String, String> JALOUSIE = newHashMap(
+    "HINTEN_LINKS"  -> "iKueche_Jalousie_Hinten_Steuerung_Prozent",
+    "HINTEN_RECHTS" -> "iBad_Jalousie_Hinten_Steuerung_Prozent",
+    "VORNE_LINKS"   -> "iKueche_Jalousie_Vorne_Steuerung_Prozent",
+    "VORNE_RECHTS"  -> "iBad_Jalousie_Vorne_Steuerung_Prozent"
+)
+
+val Map<String, String> LICHT = newHashMap(
+    "HINTEN_LINKS"  -> "iKueche",
+    "HINTEN_MITTE"  -> "iBad",
+    "HINTEN_RECHTS" -> "iIoT",
+    "VORNE_LINKS"   -> "iSmartHome",
+    "VORNE_RECHTS"  -> "iMultimedia"
+)
+
+val List<String> SENDER = newArrayList("SWR3", "bigFM_BW", "Energy_Stuttgart",
+                                       "Radio_Regenbogen", "Antenne1", "DASDING")
+
+// Nach einem Swipe die Höhensteuerung kurz sperren, sonst überschreibt die
+// Handbewegung sofort wieder das Ergebnis des Swipes.
+var long swipeSperreBis = 0
+
+// ---------------------------------------------------------------------------
+rule "Leap MQTT: Start"
+when
+    System started
+then
+    if (Leap_Multimedia_Modus.state == NULL || Leap_Multimedia_Modus.state == UNDEF)
+        Leap_Multimedia_Modus.postUpdate("ROLLLADEN")
+    if (Leap_Multimedia_Webradio_Sender.state == NULL || Leap_Multimedia_Webradio_Sender.state == UNDEF)
+        Leap_Multimedia_Webradio_Sender.postUpdate("SWR3")
+end
+
+// ---------------------------------------------------------------------------
+rule "Leap MQTT: Modus per Kreis wechseln"
+when
+    Channel "mqtt:topic:mosquitto:leap_multimedia:gesture" triggered CIRCLE_CW or
+    Channel "mqtt:topic:mosquitto:leap_multimedia:gesture" triggered CIRCLE_CCW
+then
+    var idx = MODI.indexOf(Leap_Multimedia_Modus.state.toString)
+    if (idx < 0) idx = 0
+    idx = if (receivedEvent == "CIRCLE_CW") (idx + 1) % MODI.size else (idx + MODI.size - 1) % MODI.size
+    Leap_Multimedia_Modus.postUpdate(MODI.get(idx))
+    logInfo("leap", "Modus: {}", MODI.get(idx))
+end
+
+// ---------------------------------------------------------------------------
+rule "Leap MQTT: Rollladen und Jalousie per Höhe"
+when
+    Item Leap_Multimedia_Hoehe changed or
+    Item Leap_Multimedia_Zone_Rollladen changed or
+    Item Leap_Multimedia_Zone_Jalousie changed
+then
+    val modus = Leap_Multimedia_Modus.state.toString
+    if (modus != "ROLLLADEN" && modus != "JALOUSIE") return;
+    if (Leap_Multimedia_Hand.state != ON || !(Leap_Multimedia_Hoehe.state instanceof Number)) return;
+    if (now.toInstant.toEpochMilli < swipeSperreBis) return;
+
+    val zone = if (modus == "ROLLLADEN") Leap_Multimedia_Zone_Rollladen.state.toString
+               else Leap_Multimedia_Zone_Jalousie.state.toString
+    val item = if (modus == "ROLLLADEN") ROLLLADEN.get(zone) else JALOUSIE.get(zone)
+    if (item === null) return;
+
+    // Hand oben (100 %) = offen (0 %)
+    val prozent = 100 - (Leap_Multimedia_Hoehe.state as Number).intValue
+    sendCommand(item, prozent.toString)
+end
+
+rule "Leap MQTT: Rollladen und Jalousie per Swipe"
+when
+    Channel "mqtt:topic:mosquitto:leap_multimedia:gesture" triggered SWIPE_UP or
+    Channel "mqtt:topic:mosquitto:leap_multimedia:gesture" triggered SWIPE_DOWN
+then
+    val modus = Leap_Multimedia_Modus.state.toString
+    val item = if (modus == "ROLLLADEN") ROLLLADEN.get(Leap_Multimedia_Zone_Rollladen.state.toString)
+               else if (modus == "JALOUSIE") JALOUSIE.get(Leap_Multimedia_Zone_Jalousie.state.toString)
+               else null
+    if (item === null) return;
+    // 0/100 statt UP/DOWN: virtuelle Items übernehmen nur Prozentwerte per autoupdate
+    sendCommand(item, if (receivedEvent == "SWIPE_UP") "0" else "100")
+    swipeSperreBis = now.toInstant.toEpochMilli + 2000
+end
+
+// ---------------------------------------------------------------------------
+rule "Leap MQTT: Licht per Höhe (Helligkeit) und Tiefe (Farbe)"
+when
+    Item Leap_Multimedia_Hoehe changed or
+    Item Leap_Multimedia_Tiefe changed or
+    Item Leap_Multimedia_Zone_Licht changed
+then
+    if (Leap_Multimedia_Modus.state.toString != "LICHT") return;
+    if (Leap_Multimedia_Hand.state != ON) return;
+    if (!(Leap_Multimedia_Hoehe.state instanceof Number) || !(Leap_Multimedia_Tiefe.state instanceof Number)) return;
+    val raum = LICHT.get(Leap_Multimedia_Zone_Licht.state.toString)
+    if (raum === null) return;
+
+    val helligkeit = (Leap_Multimedia_Hoehe.state as Number).intValue
+    val farbton = (((Leap_Multimedia_Tiefe.state as Number).intValue * 360 / 100) / 5 * 5) % 360
+    sendCommand(raum + "_Hue_Lampen_Farbe", farbton + ",100," + helligkeit)
+    sendCommand(raum + "_Hue_Lampen_Schalter", if (helligkeit > 5) "ON" else "OFF")
+end
+
+// ---------------------------------------------------------------------------
+rule "Leap MQTT: Webradio-Lautstärke per Höhe"
+when
+    Item Leap_Multimedia_Hoehe changed
+then
+    if (Leap_Multimedia_Modus.state.toString != "WEBRADIO") return;
+    if (Leap_Multimedia_Hand.state != ON || !(Leap_Multimedia_Hoehe.state instanceof Number)) return;
+    // Bei geschlossener Faust nicht nachregeln
+    if (Leap_Multimedia_Grab.state instanceof Number && (Leap_Multimedia_Grab.state as Number).intValue >= 80) return;
+    iMultimedia_Sonos_Lautsprecher_Lautstaerke.sendCommand(Leap_Multimedia_Hoehe.state as Number)
+end
+
+rule "Leap MQTT: Webradio per Geste"
+when
+    Channel "mqtt:topic:mosquitto:leap_multimedia:gesture" triggered
+then
+    if (Leap_Multimedia_Modus.state.toString != "WEBRADIO") return;
+    val ereignis = receivedEvent
+    var sender = Leap_Multimedia_Webradio_Sender.state.toString
+    if (!SENDER.contains(sender)) sender = SENDER.get(0)
+
+    switch ereignis {
+        case "GRAB":
+            sendCommand("iMultimedia_Webradio_" + sender, "OFF")
+        case "RELEASE", case "FIST_TAP":
+            sendCommand("iMultimedia_Webradio_" + sender, "ON")
+        case "SWIPE_LEFT", case "SWIPE_RIGHT": {
+            val richtung = if (ereignis == "SWIPE_RIGHT") 1 else -1
+            val neu = SENDER.get((SENDER.indexOf(sender) + richtung + SENDER.size) % SENDER.size)
+            sendCommand("iMultimedia_Webradio_" + sender, "OFF")
+            sendCommand("iMultimedia_Webradio_" + neu, "ON")
+            Leap_Multimedia_Webradio_Sender.postUpdate(neu)
+            logInfo("leap", "Sender: {}", neu)
+        }
+    }
+end

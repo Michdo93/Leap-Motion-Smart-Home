@@ -1,0 +1,15 @@
+// ============================================================================
+// Kapitel 3 – Das openHAB-Leap-Motion-Binding (ohne eigene Programmierung)
+//
+// Voraussetzungen / Grenzen (siehe Kapitel 4):
+//   * Binding läuft nur unter macOS auf Intel-x86 – NICHT auf dem Raspberry Pi
+//   * genau EIN Controller pro Rechner
+//   * keine Konfigurationsparameter
+//   * Discovery: der Controller erscheint automatisch in der Inbox, sobald er per
+//     USB verbunden ist. Alternativ textuell wie unten.
+//
+// Einziger Channel: gesture (Trigger) mit den Ereignissen
+//   nohand | tap | clockwise | anticlockwise | fingersX_YYY  (X Finger in YYY mm Höhe)
+// ============================================================================
+
+Thing leapmotion:controller:1 "Leap Motion Controller" @ "Multimedia"

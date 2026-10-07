@@ -1,0 +1,10 @@
+# Datei: /etc/systemd/system/usbip-watchdog.timer
+[Unit]
+Description=Timer for USB/IP Client Watchdog
+
+[Timer]
+OnBootSec=10s
+OnUnitActiveSec=30s
+
+[Install]
+WantedBy=timers.target

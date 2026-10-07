@@ -1,0 +1,17 @@
+# Kapitel 17 – Zugriffsrechte
+# Datei: /etc/mosquitto/acl
+
+# Leap-Gateway (Python auf dem Raspberry Pi): darf nur unter leap/ schreiben
+user leap
+topic readwrite leap/#
+
+# openHAB (MQTT-Broker-Thing): liest Sensordaten, darf Steuer-Topics schreiben
+user openhab
+topic read leap/#
+topic write leap/+/cmd/#
+topic readwrite robot/#
+
+# ROS-2-Brücke (Kapitel 26)
+user robot
+topic readwrite robot/#
+topic read leap/#

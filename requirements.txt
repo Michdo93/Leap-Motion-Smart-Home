@@ -1,0 +1,12 @@
+# Installation im venv:
+#   python3 -m venv --system-site-packages .venv
+#   source .venv/bin/activate
+#   pip install -r requirements.txt
+#   pip install -e .
+#
+# LeapC-Bindings (leapc_cffi) werden NICHT über PyPI installiert – siehe Kapitel 5.
+
+pyyaml>=6.0
+paho-mqtt>=2.0
+aiohttp>=3.9
+python-openhab-rest-client @ git+https://github.com/Michdo93/python-openhab-rest-client.git

@@ -1,0 +1,32 @@
+// ============================================================================
+// Sonos-Lautsprecher + Webradio (virtuell) – orientiert am Sonos-Binding
+//   Thing-Typ: sonos:One / sonos:PLAY5 ...   Channels:
+//     control  -> Player (PLAY/PAUSE/NEXT/PREVIOUS)
+//     volume   -> Dimmer
+//     mute     -> Switch
+//     playuri  -> String (Stream-URL eines Senders)
+//
+// Webradio-Sender sind wie in leap_webradio_oh.py als Schalter abgebildet:
+//   iMultimedia_Webradio_<Sender>  ON = Sender läuft, OFF = aus
+// Mit echter Hardware übernimmt eine Regel das Umsetzen auf playuri.
+// ============================================================================
+
+Group iMultimedia_Sonos_Lautsprecher "Sonos Multimedia" <soundvolume> (gMultimedia) ["Speaker"]
+Player iMultimedia_Sonos_Lautsprecher_Steuerung "Wiedergabe" <player>
+    (iMultimedia_Sonos_Lautsprecher) ["Control", "MediaControl"]
+    // { channel="sonos:One:RINCON_000000000000001400:control" }
+Dimmer iMultimedia_Sonos_Lautsprecher_Lautstaerke "Lautstärke [%d %%]" <soundvolume>
+    (iMultimedia_Sonos_Lautsprecher) ["Control", "SoundVolume"]
+    // { channel="sonos:One:RINCON_000000000000001400:volume" }
+Switch iMultimedia_Sonos_Lautsprecher_Stumm "Stumm [%s]" <soundvolume_mute>
+    (iMultimedia_Sonos_Lautsprecher) ["Switch", "SoundVolume"]
+String iMultimedia_Sonos_Lautsprecher_URI "Stream-URI [%s]" <text>
+    (iMultimedia_Sonos_Lautsprecher) ["Control"]
+
+Group gWebradio "Webradio-Sender" <radio> (iMultimedia_Sonos_Lautsprecher)
+Switch iMultimedia_Webradio_SWR3             "SWR3 [%s]"              <radio> (gWebradio) ["Switch"]
+Switch iMultimedia_Webradio_bigFM_BW         "bigFM BW [%s]"          <radio> (gWebradio) ["Switch"]
+Switch iMultimedia_Webradio_Energy_Stuttgart "Energy Stuttgart [%s]"  <radio> (gWebradio) ["Switch"]
+Switch iMultimedia_Webradio_Radio_Regenbogen "Radio Regenbogen [%s]"  <radio> (gWebradio) ["Switch"]
+Switch iMultimedia_Webradio_Antenne1         "Antenne 1 [%s]"         <radio> (gWebradio) ["Switch"]
+Switch iMultimedia_Webradio_DASDING          "DASDING [%s]"           <radio> (gWebradio) ["Switch"]

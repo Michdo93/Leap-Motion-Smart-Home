@@ -1,0 +1,12 @@
+// Kapitel 26 – Items für den Roboter
+Group gPepper "Pepper" <robot> (gMultimedia) ["Equipment"]
+Switch Pepper_Leap_Freigabe "Leap-Steuerung [%s]" <switch> (gPepper) ["Switch"]
+    { channel="mqtt:topic:mosquitto:robot_pepper:enable" }
+String Pepper_Zone "Zone [%s]" <zones> (gPepper)
+    { channel="mqtt:topic:mosquitto:robot_pepper:zone" }
+Number Pepper_Linear_X "Vorwärts [%.2f m/s]" <motion> (gPepper)
+    { channel="mqtt:topic:mosquitto:robot_pepper:linear_x" }
+Number Pepper_Linear_Y "Seitwärts [%.2f m/s]" <motion> (gPepper)
+    { channel="mqtt:topic:mosquitto:robot_pepper:linear_y" }
+Number Pepper_Angular_Z "Drehung [%.2f rad/s]" <motion> (gPepper)
+    { channel="mqtt:topic:mosquitto:robot_pepper:angular_z" }

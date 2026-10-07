@@ -1,0 +1,34 @@
+// ============================================================================
+// Kapitel 25 – Hybrid A: Ereignis-Regeln (Rules DSL)
+// Dimmen kommt direkt per REST aus Python – hier nur die diskreten Gesten.
+// Voraussetzung: Things/Items aus Kapitel 18. Kapitel-20-Regeln dabei deaktivieren.
+// ============================================================================
+
+rule "Hybrid A: Tap schaltet Licht"
+when
+    Channel "mqtt:topic:mosquitto:leap_multimedia:gesture" triggered KEY_TAP
+then
+    iMultimedia_Hue_Lampen_Schalter.sendCommand(if (iMultimedia_Hue_Lampen_Schalter.state == ON) OFF else ON)
+end
+
+rule "Hybrid A: Finger wählen Szene"
+when
+    Channel "mqtt:topic:mosquitto:leap_multimedia:gesture" triggered
+then
+    if (!receivedEvent.startsWith("FINGERS_")) return;
+    val nummer = receivedEvent.substring(8)
+    iMultimedia_Hue_Lampen_Szene.sendCommand("Szene " + nummer)
+    iMultimedia_Hue_Lampen_Schalter.sendCommand(ON)
+end
+
+rule "Hybrid A: Kreis ändert Farbtemperatur"
+when
+    Channel "mqtt:topic:mosquitto:leap_multimedia:gesture" triggered CIRCLE_CW or
+    Channel "mqtt:topic:mosquitto:leap_multimedia:gesture" triggered CIRCLE_CCW
+then
+    var aktuell = 50
+    if (iMultimedia_Hue_Lampen_Farbtemperatur.state instanceof Number)
+        aktuell = (iMultimedia_Hue_Lampen_Farbtemperatur.state as Number).intValue
+    val neu = Math::max(0, Math::min(100, aktuell + (if (receivedEvent == "CIRCLE_CW") 10 else -10)))
+    iMultimedia_Hue_Lampen_Farbtemperatur.sendCommand(neu)
+end

@@ -1,0 +1,69 @@
+# ----------------------------------------------------------------------------
+# Vorlage für die lokale Konfiguration.
+#
+#   cp config/config.example.yaml config/config.yaml
+#
+# config/config.yaml steht in .gitignore und wird NIE eingecheckt.
+# ----------------------------------------------------------------------------
+
+# --- openHAB (Ansatz B: REST) ------------------------------------------------
+openhab:
+  url: "http://openhab.local:8080"
+  token: "oh.leapmotion.XXXXXXXXXXXXXXXXXXXXXXXX"   # API-Token (UI -> Profil -> API-Tokens)
+  # Alternativ (nicht empfohlen): username/password
+  # username: "openhab"
+  # password: "CHANGE_ME"
+  min_interval: 0.1        # Sekunden zwischen zwei Befehlen an dasselbe Item
+
+# --- MQTT (Ansatz A) ---------------------------------------------------------
+mqtt:
+  host: "localhost"        # Mosquitto auf dem Raspberry Pi
+  port: 1883
+  username: "leap"
+  password: "CHANGE_ME"
+  base_topic: "leap"
+  client_id: "leap-gateway"
+  tls: false
+
+# --- Sensoren: Seriennummer -> Alias -----------------------------------------
+# Seriennummern ermitteln:  python3 06-hardware-discovery/leap_discovery.py
+# Der Alias erscheint in MQTT-Topics (leap/<alias>/...) und Item-Namen.
+devices:
+  LP19566274693: multimedia
+  # LPxxxxxxxxxxx: konferenz
+  # LPxxxxxxxxxxx: kueche
+  # LPxxxxxxxxxxx: tv
+
+# --- Interaktionsraum (mm) ---------------------------------------------------
+interaction:
+  y_min: 100               # Hand ganz unten
+  y_max: 450               # Hand ganz oben
+  z_min: -200              # hinten (Richtung Bildschirm)
+  z_max: 200               # vorne (Richtung Körper)
+  step: 5                  # Prozentwerte auf 5er-Schritte runden
+  palm_resolution: 5       # Rohkoordinaten nur bei Änderung >= 5 mm senden
+  rate_hz: 10              # max. Zustandsupdates pro Sekunde und Topic
+
+# --- Benannte Zonen für das MQTT-Gateway (Kapitel 19) -------------------------
+# Pro Zonen-Satz wird leap/<alias>/zone/<satz> = <Name> bzw. NONE veröffentlicht.
+# Fehlende Achse = unbegrenzt. Die erste passende Zone gewinnt.
+zone_sets:
+  rollladen:               # 4 Spalten entlang X (wie leap_rollladen.py)
+    - {name: Z1, x: [-400, -151]}
+    - {name: Z2, x: [-150, -1]}
+    - {name: Z3, x: [0, 149]}
+    - {name: Z4, x: [150, 400]}
+  jalousie:                # 2x2-Matrix (wie leap_jalousie_oh.py)
+    - {name: HINTEN_LINKS,  x: [-400, -1], z: [-300, -1]}
+    - {name: HINTEN_RECHTS, x: [0, 400],   z: [-300, -1]}
+    - {name: VORNE_LINKS,   x: [-400, -1], z: [0, 300]}
+    - {name: VORNE_RECHTS,  x: [0, 400],   z: [0, 300]}
+  licht:                   # hinten 3 Räume, vorne 2 Räume (wie leap_lights_oh.py)
+    - {name: HINTEN_LINKS,  x: [-400, -131], z: [-300, -1]}
+    - {name: HINTEN_MITTE,  x: [-130, 129],  z: [-300, -1]}
+    - {name: HINTEN_RECHTS, x: [130, 400],   z: [-300, -1]}
+    - {name: VORNE_LINKS,   x: [-400, -1],   z: [0, 300]}
+    - {name: VORNE_RECHTS,  x: [0, 400],     z: [0, 300]}
+
+# --- Gesten, die das Gateway erkennen soll -----------------------------------
+gestures: [swipe, circle, key_tap, screen_tap, grab, pinch, fingers, hold]

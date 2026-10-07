@@ -1,0 +1,54 @@
+// ============================================================================
+// Kapitel 25 – Hybrid B: Gesten nach Zeige-Ziel verteilen (Rules DSL)
+// Python setzt Leap_Multimedia_Ziel per REST, Gesten kommen per MQTT.
+// ============================================================================
+
+rule "Hybrid B: Start"
+when
+    System started
+then
+    if (Leap_Multimedia_Freigabe.state == NULL) Leap_Multimedia_Freigabe.postUpdate(ON)
+end
+
+rule "Hybrid B: Freigabe nachts entziehen"
+when
+    Time cron "0 0 23 * * ?"
+then
+    Leap_Multimedia_Freigabe.sendCommand(OFF)
+end
+
+rule "Hybrid B: Gesten verteilen"
+when
+    Channel "mqtt:topic:mosquitto:leap_multimedia:gesture" triggered
+then
+    val e = receivedEvent
+    switch Leap_Multimedia_Ziel.state.toString {
+        case "TV": {
+            var kanal = 1
+            if (iMultimedia_Samsung_TV_Kanal.state instanceof Number)
+                kanal = (iMultimedia_Samsung_TV_Kanal.state as Number).intValue
+            if (e == "SWIPE_RIGHT") iMultimedia_Samsung_TV_Kanal.sendCommand(kanal + 1)
+            if (e == "SWIPE_LEFT" && kanal > 1) iMultimedia_Samsung_TV_Kanal.sendCommand(kanal - 1)
+            if (e == "KEY_TAP") iMultimedia_Samsung_TV_Stumm.sendCommand(if (iMultimedia_Samsung_TV_Stumm.state == ON) OFF else ON)
+            if (e == "GRAB") iMultimedia_Samsung_TV_Power.sendCommand(OFF)
+        }
+        case "LICHT": {
+            var hell = 0
+            if (iMultimedia_Hue_Lampen_Helligkeit.state instanceof Number)
+                hell = (iMultimedia_Hue_Lampen_Helligkeit.state as Number).intValue
+            if (e == "SWIPE_UP")   iMultimedia_Hue_Lampen_Helligkeit.sendCommand(Math::min(100, hell + 20))
+            if (e == "SWIPE_DOWN") iMultimedia_Hue_Lampen_Helligkeit.sendCommand(Math::max(0, hell - 20))
+            if (e == "KEY_TAP")    iMultimedia_Hue_Lampen_Schalter.sendCommand(if (iMultimedia_Hue_Lampen_Schalter.state == ON) OFF else ON)
+        }
+        case "ROLLLADEN": {
+            if (e == "SWIPE_UP")   iMultimedia_Somfy_Rollladen_Steuerung_Prozent.sendCommand(0)
+            if (e == "SWIPE_DOWN") iMultimedia_Somfy_Rollladen_Steuerung_Prozent.sendCommand(100)
+        }
+        case "RADIO": {
+            if (e == "KEY_TAP")
+                iMultimedia_Sonos_Lautsprecher_Steuerung.sendCommand(if (iMultimedia_Sonos_Lautsprecher_Steuerung.state == PLAY) PAUSE else PLAY)
+            if (e == "SWIPE_RIGHT") iMultimedia_Sonos_Lautsprecher_Steuerung.sendCommand(NEXT)
+            if (e == "SWIPE_LEFT")  iMultimedia_Sonos_Lautsprecher_Steuerung.sendCommand(PREVIOUS)
+        }
+    }
+end

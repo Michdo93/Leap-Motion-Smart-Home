@@ -1,0 +1,30 @@
+// ============================================================================
+// Somfy-Rollläden (virtuell) – orientiert am Somfy-TaHoma-Binding
+//   Thing-Typ: somfytahoma:rollershutter   Channel: control (Rollershutter)
+//   0 % = offen, 100 % = geschlossen
+//
+// Hinweis: Virtuelle Rollershutter-Items übernehmen per autoupdate nur
+// Prozentwerte als Zustand. Die Beispielprogramme senden deshalb 0/100
+// statt UP/DOWN.
+// ============================================================================
+
+// Zone 1 (ganz links)
+Group iMultimedia_Somfy_Rollladen   "Rollladen Multimedia"      <rollershutter> (gMultimedia) ["Blinds"]
+Rollershutter iMultimedia_Somfy_Rollladen_Steuerung_Prozent "Rollladen Multimedia [%d %%]" <rollershutter>
+    (iMultimedia_Somfy_Rollladen, gRollladen) ["Control", "Opening"]
+    // { channel="somfytahoma:rollershutter:tahoma:multimedia:control" }
+
+// Zone 2
+Group iKonferenz_Somfy_Rollladen2   "Rollladen Konferenz 2"     <rollershutter> (gKonferenz) ["Blinds"]
+Rollershutter iKonferenz_Somfy_Rollladen2_Steuerung_Prozent "Rollladen Konferenz 2 [%d %%]" <rollershutter>
+    (iKonferenz_Somfy_Rollladen2, gRollladen) ["Control", "Opening"]
+
+// Zone 3
+Group iKonferenz_Somfy_Rollladen1   "Rollladen Konferenz 1"     <rollershutter> (gKonferenz) ["Blinds"]
+Rollershutter iKonferenz_Somfy_Rollladen1_Steuerung_Prozent "Rollladen Konferenz 1 [%d %%]" <rollershutter>
+    (iKonferenz_Somfy_Rollladen1, gRollladen) ["Control", "Opening"]
+
+// Zone 4 (ganz rechts)
+Group iSmartHome_Somfy_Rollladen    "Rollladen Smart Home"      <rollershutter> (gSmartHome) ["Blinds"]
+Rollershutter iSmartHome_Somfy_Rollladen_Steuerung_Prozent "Rollladen Smart Home [%d %%]" <rollershutter>
+    (iSmartHome_Somfy_Rollladen, gRollladen) ["Control", "Opening"]

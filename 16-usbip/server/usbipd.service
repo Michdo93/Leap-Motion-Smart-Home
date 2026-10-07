@@ -1,0 +1,15 @@
+# Kapitel 16 – USB/IP-Server (Raspberry Pi, an dem der Leap Motion steckt)
+# Datei: /etc/systemd/system/usbipd.service
+[Unit]
+Description=USB/IP Daemon
+Requires=network.target
+After=network.target
+
+[Service]
+Type=simple
+ExecStartPre=/usr/sbin/modprobe usbip_host
+ExecStart=/usr/sbin/usbipd
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,59 @@
+// ============================================================================
+// Kapitel 3 – Regeln für das Leap-Motion-Binding (Rules DSL)
+// ============================================================================
+
+// 1) Rohereignisse des Trigger-Channels auswerten
+rule "Leap Binding: Rohereignis"
+when
+    Channel "leapmotion:controller:1:gesture" triggered
+then
+    val ereignis = receivedEvent
+    Leap_Binding_Ereignis.postUpdate(ereignis)
+
+    switch ereignis {
+        case "tap":           logInfo("leap", "Tap erkannt")
+        case "clockwise":     iMultimedia_Sonos_Lautsprecher_Steuerung.sendCommand(NEXT)
+        case "anticlockwise": iMultimedia_Sonos_Lautsprecher_Steuerung.sendCommand(PREVIOUS)
+        case "nohand":        logDebug("leap", "Keine Hand")
+        default: {
+            // fingersX_YYY, z. B. fingers3_180 = drei Finger in 180 mm Höhe
+            if (ereignis.startsWith("fingers")) {
+                val teile = ereignis.substring(7).split("_")
+                val finger = Integer::parseInt(teile.get(0))
+                val hoehe  = Integer::parseInt(teile.get(1))
+                logDebug("leap", "Finger: {} | Höhe: {} mm", finger, hoehe)
+            }
+        }
+    }
+end
+
+// 2) Proxy-Items an virtuelle Geräte weiterreichen
+rule "Leap Binding: Tap schaltet Licht Multimedia"
+when
+    Item Leap_Binding_Schalter changed
+then
+    iMultimedia_Hue_Lampen_Schalter.sendCommand(Leap_Binding_Schalter.state.toString)
+end
+
+rule "Leap Binding: Fingeranzahl dimmt Licht Multimedia"
+when
+    Item Leap_Binding_Finger changed
+then
+    iMultimedia_Hue_Lampen_Helligkeit.sendCommand(Leap_Binding_Finger.state as Number)
+end
+
+rule "Leap Binding: Handhöhe steuert Rollladen Multimedia"
+when
+    Item Leap_Binding_Hoehe changed
+then
+    // Hand oben (100 %) = Rollladen offen (0 %)
+    val prozent = 100 - (Leap_Binding_Hoehe.state as Number).intValue
+    iMultimedia_Somfy_Rollladen_Steuerung_Prozent.sendCommand(prozent)
+end
+
+rule "Leap Binding: Farbe an Hue Multimedia"
+when
+    Item Leap_Binding_Farbe changed
+then
+    iMultimedia_Hue_Lampen_Farbe.sendCommand(Leap_Binding_Farbe.state.toString)
+end

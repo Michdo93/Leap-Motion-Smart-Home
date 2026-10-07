@@ -1,0 +1,74 @@
+// ============================================================================
+// Kapitel 18 – MQTT-Broker-Thing und Leap-Motion-Things (Generic MQTT)
+//
+// Voraussetzung: MQTT-Binding installiert, Mosquitto läuft (Kapitel 17).
+// Passwort: hier nur Platzhalter – in der UI eintragen oder die Datei NICHT
+// einchecken (alternativ Thing in der UI anlegen und nur Kanäle textuell).
+//
+// Topic-Schema des Gateways (Kapitel 19), <alias> aus config.yaml:
+//   leap/<alias>/status            online | offline        (retained)
+//   leap/<alias>/hand              ON | OFF                (retained)
+//   leap/<alias>/side              LEFT | RIGHT
+//   leap/<alias>/palm/x|y|z        mm
+//   leap/<alias>/hoehe             0..100 % (unten..oben)
+//   leap/<alias>/tiefe             0..100 % (hinten..vorne)
+//   leap/<alias>/finger            0..5
+//   leap/<alias>/grab | pinch      0..100 %
+//   leap/<alias>/roll              Grad
+//   leap/<alias>/fps               Bilder/s
+//   leap/<alias>/zone/<satz>       Zonenname | NONE        (rollladen, jalousie, licht)
+//   leap/<alias>/gesture           SWIPE_LEFT, CIRCLE_CW, KEY_TAP, GRAB ... (Ereignis)
+// ============================================================================
+
+Bridge mqtt:broker:mosquitto "Mosquitto (Raspberry Pi)" [
+    host="localhost", port=1883, secure=false,
+    username="openhab", password="CHANGE_ME",
+    clientID="openhab-leap"
+] {
+    Thing topic leap_multimedia "Leap Motion Multimedia" @ "Multimedia" [
+        availabilityTopic="leap/multimedia/status",
+        payloadAvailable="online", payloadNotAvailable="offline"
+    ] {
+        Channels:
+            Type string  : status         "Status"          [ stateTopic="leap/multimedia/status" ]
+            Type switch  : hand           "Hand erkannt"    [ stateTopic="leap/multimedia/hand", on="ON", off="OFF" ]
+            Type string  : side           "Hand-Seite"      [ stateTopic="leap/multimedia/side" ]
+            Type number  : palm_x         "Handfläche X"    [ stateTopic="leap/multimedia/palm/x", unit="mm" ]
+            Type number  : palm_y         "Handfläche Y"    [ stateTopic="leap/multimedia/palm/y", unit="mm" ]
+            Type number  : palm_z         "Handfläche Z"    [ stateTopic="leap/multimedia/palm/z", unit="mm" ]
+            Type dimmer  : hoehe          "Höhe"            [ stateTopic="leap/multimedia/hoehe", min=0, max=100 ]
+            Type dimmer  : tiefe          "Tiefe"           [ stateTopic="leap/multimedia/tiefe", min=0, max=100 ]
+            Type number  : finger         "Finger"          [ stateTopic="leap/multimedia/finger" ]
+            Type dimmer  : grab           "Greifstärke"     [ stateTopic="leap/multimedia/grab", min=0, max=100 ]
+            Type dimmer  : pinch          "Pinch-Stärke"    [ stateTopic="leap/multimedia/pinch", min=0, max=100 ]
+            Type number  : roll           "Roll"            [ stateTopic="leap/multimedia/roll", unit="°" ]
+            Type number  : fps            "Bildrate"        [ stateTopic="leap/multimedia/fps" ]
+            Type string  : zone_rollladen "Zone Rollladen"  [ stateTopic="leap/multimedia/zone/rollladen" ]
+            Type string  : zone_jalousie  "Zone Jalousie"   [ stateTopic="leap/multimedia/zone/jalousie" ]
+            Type string  : zone_licht     "Zone Licht"      [ stateTopic="leap/multimedia/zone/licht" ]
+            Type trigger : gesture        "Geste"           [ stateTopic="leap/multimedia/gesture" ]
+            Type string  : gesture_last   "Letzte Geste"    [ stateTopic="leap/multimedia/gesture" ]
+    }
+
+    // Zweiter Sensor (Kapitel 12) – identisch, nur anderer Alias
+    Thing topic leap_konferenz "Leap Motion Konferenz" @ "Konferenz" [
+        availabilityTopic="leap/konferenz/status",
+        payloadAvailable="online", payloadNotAvailable="offline"
+    ] {
+        Channels:
+            Type switch  : hand           "Hand erkannt"    [ stateTopic="leap/konferenz/hand", on="ON", off="OFF" ]
+            Type dimmer  : hoehe          "Höhe"            [ stateTopic="leap/konferenz/hoehe", min=0, max=100 ]
+            Type string  : zone_rollladen "Zone Rollladen"  [ stateTopic="leap/konferenz/zone/rollladen" ]
+            Type trigger : gesture        "Geste"           [ stateTopic="leap/konferenz/gesture" ]
+            Type string  : gesture_last   "Letzte Geste"    [ stateTopic="leap/konferenz/gesture" ]
+    }
+
+    // Gateway selbst (Last Will)
+    Thing topic leap_gateway "Leap-Gateway" [
+        availabilityTopic="leap/gateway/status",
+        payloadAvailable="online", payloadNotAvailable="offline"
+    ] {
+        Channels:
+            Type string : status "Gateway-Status" [ stateTopic="leap/gateway/status" ]
+    }
+}

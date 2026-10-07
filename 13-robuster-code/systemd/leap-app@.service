@@ -1,0 +1,33 @@
+# Kapitel 13 – Beliebiges Beispielprogramm als systemd-Dienst
+#
+# Instanzname = Pfad relativ zur Repo-Wurzel, "/" durch "-" ersetzt wird NICHT
+# automatisch – deshalb Skriptpfad per Environment-Datei:
+#   /etc/leap-app/<instanz>.env  mit  LEAP_SCRIPT=19-mqtt-gateway/leap_mqtt_gateway.py
+#                                      LEAP_ARGS=--sensor multimedia
+#
+# Installation (Pfade anpassen: Benutzer pi, Repo unter /home/pi/Leap-Motion-Smart-Home):
+#   sudo cp leap-app@.service /etc/systemd/system/
+#   sudo mkdir -p /etc/leap-app
+#   echo 'LEAP_SCRIPT=19-mqtt-gateway/leap_mqtt_gateway.py' | sudo tee /etc/leap-app/gateway.env
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now leap-app@gateway
+#   journalctl -u leap-app@gateway -f
+
+[Unit]
+Description=Leap Motion Anwendung %i
+After=network-online.target ultraleap-hand-tracking-service.service mosquitto.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Leap-Motion-Smart-Home
+EnvironmentFile=/etc/leap-app/%i.env
+Environment=PYTHONUNBUFFERED=1
+Environment=LEAP_CONFIG=/home/pi/Leap-Motion-Smart-Home/config/config.yaml
+ExecStart=/home/pi/Leap-Motion-Smart-Home/.venv/bin/python3 ${LEAP_SCRIPT} $LEAP_ARGS
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

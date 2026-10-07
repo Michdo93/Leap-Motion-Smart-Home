@@ -1,0 +1,4 @@
+// Kapitel 25 – Hybrid B: Kontext- und Freigabe-Item (virtuell)
+String Leap_Multimedia_Ziel "Zeige-Ziel [%s]" <zones> (gLeapMultimedia)
+    { stateDescription=" "[ options="ROLLLADEN=Rollladen,LICHT=Licht,TV=Fernseher,RADIO=Webradio" ] }
+Switch Leap_Multimedia_Freigabe "Gestensteuerung freigegeben [%s]" <switch> (gLeapMultimedia)

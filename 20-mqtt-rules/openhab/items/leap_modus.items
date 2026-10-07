@@ -1,0 +1,11 @@
+// ============================================================================
+// Kapitel 20 – Hilfs-Items für die Regeln (virtuell, ohne Channel)
+//
+// Ein Sensor steuert vier Anwendungen – der Modus legt fest, welche aktiv ist.
+// Umschalten: Kreis-Geste (CIRCLE_CW / CIRCLE_CCW) oder in der UI.
+// ============================================================================
+
+String Leap_Multimedia_Modus "Leap-Modus [%s]" <settings> (gLeapMultimedia)
+    { stateDescription=" "[ options="ROLLLADEN=Rollläden,JALOUSIE=Jalousien,LICHT=Licht,WEBRADIO=Webradio" ] }
+
+String Leap_Multimedia_Webradio_Sender "Aktueller Sender [%s]" <radio> (gLeapMultimedia)

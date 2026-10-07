@@ -1,0 +1,20 @@
+# Lokale Konfiguration mit Zugangsdaten – niemals einchecken
+config/config.yaml
+config.yaml
+.env
+*.passwd
+mosquitto/passwd
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+
+# ROS 2
+26-robotik/ros2_ws/build/
+26-robotik/ros2_ws/install/
+26-robotik/ros2_ws/log/

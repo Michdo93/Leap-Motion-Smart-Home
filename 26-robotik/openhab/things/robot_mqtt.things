@@ -1,0 +1,17 @@
+// ============================================================================
+// Kapitel 26 – Roboter als Smart-Home-Gerät (über die ROS-2-MQTT-Brücke)
+// Nutzt die Bridge mqtt:broker:mosquitto aus Kapitel 18.
+// Hinweis: Things einer Bridge können auch in einer eigenen Datei stehen.
+// ============================================================================
+
+Thing mqtt:topic:mosquitto:robot_pepper "Pepper (ROS 2)" (mqtt:broker:mosquitto) @ "Multimedia" [
+    availabilityTopic="robot/pepper/status",
+    payloadAvailable="online", payloadNotAvailable="offline"
+] {
+    Channels:
+        Type switch : enable    "Leap-Steuerung freigeben" [ stateTopic="robot/pepper/enable/state", commandTopic="robot/pepper/enable", on="ON", off="OFF" ]
+        Type string : zone      "Aktive Zone"              [ stateTopic="robot/pepper/zone" ]
+        Type number : linear_x  "Vorwärts (m/s)"           [ stateTopic="robot/pepper/cmd_vel/linear_x" ]
+        Type number : linear_y  "Seitwärts (m/s)"          [ stateTopic="robot/pepper/cmd_vel/linear_y" ]
+        Type number : angular_z "Drehung (rad/s)"          [ stateTopic="robot/pepper/cmd_vel/angular_z" ]
+}

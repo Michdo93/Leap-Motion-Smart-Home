@@ -1,0 +1,7 @@
+# Datei: /etc/systemd/system/usbip-watchdog.service
+[Unit]
+Description=USB/IP Client Watchdog Service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/usbip-watchdog.sh

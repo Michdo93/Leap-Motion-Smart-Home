@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "leapsmarthome"
+version = "1.0.0"
+description = "Begleitbibliothek zum Buch: Leap Motion im Smart Home mit Python 3, openHAB und ROS 2"
+authors = [{ name = "Michael Christian Dörflinger" }]
+requires-python = ">=3.9"
+dependencies = [
+    "pyyaml>=6.0",
+    "paho-mqtt>=2.0",
+    "aiohttp>=3.9",
+]
+
+[project.optional-dependencies]
+# python-openhab-rest-client wird direkt aus GitHub installiert, siehe requirements.txt
+rest = []
+
+[tool.setuptools]
+packages = ["leapsmarthome"]

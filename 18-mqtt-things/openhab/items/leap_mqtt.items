@@ -1,0 +1,56 @@
+// ============================================================================
+// Kapitel 18 – Items für die Leap-Motion-MQTT-Things
+// Schema: Leap_<Alias>_<Wert>
+// ============================================================================
+
+Group gLeapMultimedia "Leap Motion Multimedia" <motion> (gMultimedia) ["Sensor"]
+
+String Leap_Multimedia_Online   "Sensor [%s]"            <network>     (gLeapMultimedia) ["Status"]
+    { channel="mqtt:topic:mosquitto:leap_multimedia:status" }
+Switch Leap_Multimedia_Hand     "Hand erkannt [%s]"      <motion>      (gLeapMultimedia) ["Status", "Presence"]
+    { channel="mqtt:topic:mosquitto:leap_multimedia:hand" }
+String Leap_Multimedia_Seite    "Hand [%s]"              <motion>      (gLeapMultimedia)
+    { channel="mqtt:topic:mosquitto:leap_multimedia:side" }
+Number:Length Leap_Multimedia_PalmX "X [%.0f mm]"        <line>        (gLeapMultimedia) ["Measurement"]
+    { channel="mqtt:topic:mosquitto:leap_multimedia:palm_x" }
+Number:Length Leap_Multimedia_PalmY "Y [%.0f mm]"        <line>        (gLeapMultimedia) ["Measurement"]
+    { channel="mqtt:topic:mosquitto:leap_multimedia:palm_y" }
+Number:Length Leap_Multimedia_PalmZ "Z [%.0f mm]"        <line>        (gLeapMultimedia) ["Measurement"]
+    { channel="mqtt:topic:mosquitto:leap_multimedia:palm_z" }
+Dimmer Leap_Multimedia_Hoehe    "Höhe [%d %%]"           <slider>      (gLeapMultimedia) ["Measurement"]
+    { channel="mqtt:topic:mosquitto:leap_multimedia:hoehe" }
+Dimmer Leap_Multimedia_Tiefe    "Tiefe [%d %%]"          <slider>      (gLeapMultimedia) ["Measurement"]
+    { channel="mqtt:topic:mosquitto:leap_multimedia:tiefe" }
+Number Leap_Multimedia_Finger   "Finger [%d]"            <motion>      (gLeapMultimedia) ["Measurement"]
+    { channel="mqtt:topic:mosquitto:leap_multimedia:finger" }
+Dimmer Leap_Multimedia_Grab     "Greifen [%d %%]"        <motion>      (gLeapMultimedia) ["Measurement"]
+    { channel="mqtt:topic:mosquitto:leap_multimedia:grab" }
+Dimmer Leap_Multimedia_Pinch    "Pinch [%d %%]"          <motion>      (gLeapMultimedia) ["Measurement"]
+    { channel="mqtt:topic:mosquitto:leap_multimedia:pinch" }
+Number:Angle Leap_Multimedia_Roll "Roll [%.0f °]"        <motion>      (gLeapMultimedia) ["Measurement"]
+    { channel="mqtt:topic:mosquitto:leap_multimedia:roll" }
+Number Leap_Multimedia_FPS      "Bildrate [%.0f fps]"    <line>        (gLeapMultimedia)
+    { channel="mqtt:topic:mosquitto:leap_multimedia:fps" }
+String Leap_Multimedia_Zone_Rollladen "Zone Rollladen [%s]" <zones>    (gLeapMultimedia)
+    { channel="mqtt:topic:mosquitto:leap_multimedia:zone_rollladen" }
+String Leap_Multimedia_Zone_Jalousie  "Zone Jalousie [%s]"  <zones>    (gLeapMultimedia)
+    { channel="mqtt:topic:mosquitto:leap_multimedia:zone_jalousie" }
+String Leap_Multimedia_Zone_Licht     "Zone Licht [%s]"     <zones>    (gLeapMultimedia)
+    { channel="mqtt:topic:mosquitto:leap_multimedia:zone_licht" }
+String Leap_Multimedia_LetzteGeste    "Letzte Geste [%s]"   <motion>   (gLeapMultimedia)
+    { channel="mqtt:topic:mosquitto:leap_multimedia:gesture_last" }
+// Der Trigger-Channel "gesture" wird nicht an ein Item gebunden, sondern direkt
+// in Regeln verwendet: Channel "mqtt:topic:mosquitto:leap_multimedia:gesture" triggered
+
+Group gLeapKonferenz "Leap Motion Konferenz" <motion> (gKonferenz) ["Sensor"]
+Switch Leap_Konferenz_Hand  "Hand erkannt [%s]" <motion> (gLeapKonferenz) ["Status", "Presence"]
+    { channel="mqtt:topic:mosquitto:leap_konferenz:hand" }
+Dimmer Leap_Konferenz_Hoehe "Höhe [%d %%]"      <slider> (gLeapKonferenz) ["Measurement"]
+    { channel="mqtt:topic:mosquitto:leap_konferenz:hoehe" }
+String Leap_Konferenz_Zone_Rollladen "Zone Rollladen [%s]" <zones> (gLeapKonferenz)
+    { channel="mqtt:topic:mosquitto:leap_konferenz:zone_rollladen" }
+String Leap_Konferenz_LetzteGeste "Letzte Geste [%s]" <motion> (gLeapKonferenz)
+    { channel="mqtt:topic:mosquitto:leap_konferenz:gesture_last" }
+
+String Leap_Gateway_Status "Leap-Gateway [%s]" <network>
+    { channel="mqtt:topic:mosquitto:leap_gateway:status" }

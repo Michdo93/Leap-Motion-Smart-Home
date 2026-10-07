@@ -1,0 +1,30 @@
+// ============================================================================
+// Kapitel 3 – Items mit den Profilen des Leap-Motion-Bindings
+//
+// Die Profile setzen den Trigger-Channel "gesture" direkt in Zustände um:
+//   leapmotion:switch  – tap schaltet um
+//   leapmotion:dimmer  – mode="fingers": Fingeranzahl -> 0..100 %
+//                        mode="height" : Handhöhe     -> 0..100 %
+//   leapmotion:color   – tap schaltet, Höhe = Helligkeit, Kreisen = Farbton
+//
+// Wir binden sie an eigene Leap-Items (Proxy-Items). Regeln in rules/ leiten
+// die Werte an die virtuellen Geräte aus 00-virtuelle-geraete weiter. So bleibt
+// die Gerätekonfiguration unabhängig von der Eingabemethode.
+// ============================================================================
+
+Group gLeapBinding "Leap-Motion-Binding" <motion>
+
+Switch Leap_Binding_Schalter "Leap: Tap-Schalter [%s]" <switch> (gLeapBinding)
+    { channel="leapmotion:controller:1:gesture" [profile="leapmotion:switch"] }
+
+Dimmer Leap_Binding_Finger "Leap: Finger-Dimmer [%d %%]" <slider> (gLeapBinding)
+    { channel="leapmotion:controller:1:gesture" [profile="leapmotion:dimmer", mode="fingers"] }
+
+Dimmer Leap_Binding_Hoehe "Leap: Höhen-Dimmer [%d %%]" <slider> (gLeapBinding)
+    { channel="leapmotion:controller:1:gesture" [profile="leapmotion:dimmer", mode="height"] }
+
+Color Leap_Binding_Farbe "Leap: Farbe" <colorwheel> (gLeapBinding)
+    { channel="leapmotion:controller:1:gesture" [profile="leapmotion:color"] }
+
+// Letztes Rohereignis zur Anzeige (wird per Regel gesetzt)
+String Leap_Binding_Ereignis "Leap: letztes Ereignis [%s]" <text> (gLeapBinding)
