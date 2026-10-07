@@ -1,6 +1,6 @@
 # Leap Motion im Smart Home – Begleit-Repository
 
-Codes zum Buch über **Leap Motion, Python 3, openHAB 5 und ROS 2**.
+Codes zum Buch über **Smart Home & Leap Motion: Steuern Sie Ihr Zuhause per Handgeste – mit Python und openHAB**.
 Zielplattform ist ein **Raspberry Pi** mit einem **Leap Motion Controller der 1. Generation (LM-010)**.
 
 > Alle Smart-Home-Geräte sind **virtuell**: Items ohne Thing/Channel, orientiert an den
